@@ -14,11 +14,10 @@ public class WhiteBoard extends JFrame
 	
 		JButton brushBut, lineBut, ellipseBut, rectBut, strokeBut, fillBut, rubberBut, circleBut;
 		Graphics2D graphics2D;
-
 		//global variable
 		String action ="brush";
 		Color strokeColor=Color.BLACK, fillColor=Color.BLACK;
-	
+		int brushSize=5;
         public static void main(String [] args){
         	new WhiteBoard();
         }
@@ -41,7 +40,12 @@ public class WhiteBoard extends JFrame
             circleBut =setActionButton("circle");
             strokeBut = setColorButton("strokeColor", true);
             fillBut = setColorButton("fillColor", false);
-            
+            JSlider sizeSlider = new JSlider(5,50,5);
+            sizeSlider.addChangeListener(new ChangeListener() {
+            	public void stateChanged(ChangeEvent e) {
+            		brushSize=(int) (sizeSlider.getValue());
+            	}
+            });
             
             theBox.add(brushBut);
             theBox.add(lineBut);
@@ -51,6 +55,7 @@ public class WhiteBoard extends JFrame
             theBox.add(fillBut);
             theBox.add(rubberBut);
             theBox.add(circleBut);
+            theBox.add(sizeSlider);
             
             buttonPanel.add(theBox);
 
@@ -172,7 +177,7 @@ public class WhiteBoard extends JFrame
                       			
                       			strokeColor = fillColor;
                       			
-                      			s = drawBrush(x,y,5);
+                      			s = drawBrush(x,y,brushSize);
                       			System.out.println(s.toString());
                       			shapes.add(s);
                                 shapeFill.add(fillColor);
@@ -188,7 +193,7 @@ public class WhiteBoard extends JFrame
                         			
                         			strokeColor = fillColor;
                         			
-                        			s = drawBrush(x,y,10);
+                        			s = drawBrush(x,y,brushSize);
                         			System.out.println(s.toString());
                         			shapes.add(s);
                                     shapeFill.add(Color.white);
