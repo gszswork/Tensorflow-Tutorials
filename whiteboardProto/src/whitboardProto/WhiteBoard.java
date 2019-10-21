@@ -149,8 +149,9 @@ public class WhiteBoard extends JFrame
                             	if(action != "brush" && action != "rubber"){
                             	//input strings scenario
                             		if (action =="type") {
-                            			Scanner scanner = new Scanner(System.in);
-                            			String inputString = scanner.nextLine(); 
+                            			//Scanner scanner = new Scanner(System.in);
+                            			//String inputString = scanner.nextLine(); 
+                            			String inputString= JOptionPane.showInputDialog("what u wanna type buddy?");
                             			inputTypes.add("typing");
                             			strings.add(inputString);
                             			shapeFill.add(fillColor);
