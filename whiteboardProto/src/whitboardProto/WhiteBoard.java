@@ -1,5 +1,6 @@
 package whitboardProto;
 import javax.swing.*;
+import java.util.Scanner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -12,8 +13,9 @@ import java.util.*;
 public class WhiteBoard extends JFrame
 {
 	
-		JButton brushBut, lineBut, ellipseBut, rectBut, strokeBut, fillBut, rubberBut, circleBut;
+		JButton brushBut, lineBut, ellipseBut, rectBut, strokeBut, fillBut, rubberBut, circleBut, typeBut;
 		Graphics2D graphics2D;
+		
 		//global variable
 		String action ="brush";
 		Color strokeColor=Color.BLACK, fillColor=Color.BLACK;
@@ -38,6 +40,7 @@ public class WhiteBoard extends JFrame
             rectBut = setActionButton("rectangle");
             rubberBut = setActionButton("rubber");
             circleBut =setActionButton("circle");
+            typeBut=setActionButton("type");
             strokeBut = setColorButton("strokeColor", true);
             fillBut = setColorButton("fillColor", false);
             JSlider sizeSlider = new JSlider(5,50,5);
@@ -46,6 +49,8 @@ public class WhiteBoard extends JFrame
             		brushSize=(int) (sizeSlider.getValue());
             	}
             });
+
+            
             
             theBox.add(brushBut);
             theBox.add(lineBut);
@@ -55,6 +60,7 @@ public class WhiteBoard extends JFrame
             theBox.add(fillBut);
             theBox.add(rubberBut);
             theBox.add(circleBut);
+            theBox.add(typeBut);
             theBox.add(sizeSlider);
             
             buttonPanel.add(theBox);
@@ -111,9 +117,14 @@ public class WhiteBoard extends JFrame
         private class DrawingBoard extends JPanel
         {
         		//arrays to store shapes and its colors, first in first out so new drawings get over old ones
+        		
                 ArrayList<Shape> shapes = new ArrayList<Shape>();
                 ArrayList<Color> shapeFill = new ArrayList<Color>();
                 ArrayList<Color> shapeStroke = new ArrayList<Color>();
+                ArrayList<String> strings =new ArrayList<String>();
+                ArrayList<Point>stringPoints =new ArrayList<Point>();
+                ArrayList<String> inputTypes =new ArrayList<String>();
+                
                 
                 Point start, end;
 
@@ -126,39 +137,64 @@ public class WhiteBoard extends JFrame
                             	start = new Point(e.getX(), e.getY());
                             	//error prevention god knows why
                             	end=start;
+                            		
+                            		
+                            	
                             	}
+                            	
+                            	
                             }
 
                             public void mouseReleased(MouseEvent e){
                             	if(action != "brush" && action != "rubber"){
-                            	Shape s = null;
+                            	//input strings scenario
+                            		if (action =="type") {
+                            			Scanner scanner = new Scanner(System.in);
+                            			String inputString = scanner.nextLine(); 
+                            			inputTypes.add("typing");
+                            			strings.add(inputString);
+                            			shapeFill.add(fillColor);
+                                        shapeStroke.add(strokeColor); 
+                                        stringPoints.add(start);
+                                        repaint();
+                            		}
+                            		else {
+                            			Shape s = null;
+                                    	
+                                    	if (action == "line"){
+                                    		s = drawLine(start.x, start.y,end.x, end.y);
+                                    	} 
+                                    	
+                                    	else if (action == "ellipse"){
+                                    		s = drawEllipse(start.x, start.y,end.x, end.y);
+                                    	}
+                                    	
+                                    	else if (action == "rectangle") {
+                                            s = drawRectangle(start.x, start.y,end.x, end.y);
+                                    	}
+                                    	
+                                    	else if(action =="circle") {
+                                    			s =drawCircle(start.x, start.y,end.x, end.y);
+                                    	}
+                                    	
+                                          
+                                    	System.out.println(s.toString());
+                                    	inputTypes.add("drawing");
+                                    	shapes.add(s);
+                                        shapeFill.add(fillColor);
+                                        shapeStroke.add(strokeColor); 
+                                        
+                                          start = null;
+                                          end=null;
+                                          repaint();
+                            		}
                             	
-                            	if (action == "line"){
-                            		s = drawLine(start.x, start.y,end.x, end.y);
-                            	} 
-                            	
-                            	else if (action == "ellipse"){
-                            		s = drawEllipse(start.x, start.y,end.x, end.y);
-                            	}
-                            	
-                            	else if (action == "rectangle") {
-                                    s = drawRectangle(start.x, start.y,end.x, end.y);
-                            	}
-                            	
-                            	else if(action =="circle") {
-                            			s =drawCircle(start.x, start.y,end.x, end.y);
-                            	}
-                            	
-                                  
-                            	System.out.println(s.toString());
-
-                            	shapes.add(s);
-                                shapeFill.add(fillColor);
-                                shapeStroke.add(strokeColor); 
-                                
-                                  start = null;
-                                  end=null;
-                                  repaint();
+                            		
+                            		
+                            		
+                            		
+                            		
+                            		
                                   
                             	}
                                   
@@ -179,6 +215,7 @@ public class WhiteBoard extends JFrame
                       			
                       			s = drawBrush(x,y,brushSize);
                       			System.out.println(s.toString());
+                      			inputTypes.add("drawing");
                       			shapes.add(s);
                                 shapeFill.add(fillColor);
                                 shapeStroke.add(strokeColor);
@@ -195,6 +232,7 @@ public class WhiteBoard extends JFrame
                         			
                         			s = drawBrush(x,y,brushSize);
                         			System.out.println(s.toString());
+                        			inputTypes.add("drawing");
                         			shapes.add(s);
                                     shapeFill.add(Color.white);
                                     shapeStroke.add(Color.white);
@@ -211,19 +249,41 @@ public class WhiteBoard extends JFrame
                 public void paint(Graphics g){
                         graphics2D = (Graphics2D)g;
                         graphics2D.setStroke(new BasicStroke(4));
-
+                        
+                        Iterator<Shape> shapeCounter = shapes.iterator();
                         Iterator<Color> strokeCounter = shapeStroke.iterator();
                         Iterator<Color> fillCounter = shapeFill.iterator();
+                        Iterator<Point> pointCounter = stringPoints.iterator();
                         
+                        Iterator<String> stringCounter = strings.iterator();
                         
                         //recreate canvas
-                        for (Shape s : shapes) {
+                        for (String inputType : inputTypes) {
                         
-                        	graphics2D.setPaint(strokeCounter.next());
-                        	graphics2D.draw(s);
-                        	graphics2D.setPaint(fillCounter.next());
-                        	graphics2D.fill(s);
+                        	if (inputType == "drawing") {
+                        		Shape s=shapeCounter.next();
+                        		graphics2D.setPaint(strokeCounter.next());
+                            	graphics2D.draw(s);
+                            	graphics2D.setPaint(fillCounter.next());
+                            	graphics2D.fill(s);
+                        	}
+                        	else {
+                        		graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+                        		graphics2D.setColor(strokeCounter.next());
+                        		Point stringPoint=pointCounter.next();
+                        		graphics2D.drawString(stringCounter.next(), stringPoint.x, stringPoint.y);
+                        		//useless 
+                        		graphics2D.setColor(fillCounter.next());
+                        	}
+                        	
                         }
+//                        Scanner myObj = new Scanner(System.in);
+//                        String userName = myObj.nextLine(); 
+//                        graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+//                        System.out.println("Enter username");
+//                        graphics2D.setColor(Color.black);
+//                        
+//                        graphics2D.drawString(userName, 10, 20);
 
                         
                 }
