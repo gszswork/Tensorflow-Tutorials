@@ -17,3 +17,7 @@
 4. overfitting and underfitting contains 4 models with different scales to solve a same problem. We can mainly learn 'tensorboard'. 'regularition'.
 
 这个模型采用不同深度MLP解决不同规模的分类问题，展示了过拟合等问题。主要可以熟悉学习率衰减，tensorboard的使用等。
+
+5. word embedding use 'Embedding' to solve a binary classification problem (which is the same as 3. movie review).
+
+这个模型的实现更注重embedding这门技术，比3更具体展示了如何运用embedding并且导出了embedding weights。
