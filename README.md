@@ -21,3 +21,9 @@
 5. word embedding use 'Embedding' to solve a binary classification problem (which is the same as 3. movie review).
 
 这个模型的实现更注重embedding这门技术，比3更具体展示了如何运用embedding并且导出了embedding weights。
+
+6. CNN(CIFAR-10) is a convolutional network to solve a image classification problem using data set CIFAR-10. 
+
+从Keras角度来看，CNN的模型与MLP模型的区别主要体现在model.Sequential()函数中layers的设置，训练过程的时间明显变长。
+
+
