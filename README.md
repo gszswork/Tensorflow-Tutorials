@@ -26,4 +26,4 @@
 
 从Keras角度来看，CNN的模型与MLP模型的区别主要体现在model.Sequential()函数中layers的设置，训练过程的时间明显变长。
 
-
+7.
