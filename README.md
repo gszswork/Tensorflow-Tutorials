@@ -26,4 +26,7 @@
 
 从Keras角度来看，CNN的模型与MLP模型的区别主要体现在model.Sequential()函数中layers的设置，训练过程的时间明显变长。
 
-7.
+7. CNN(Dog vs Cat) is a convolutional network to solve a image classification problem using data set Dog vs Cat.
+
+猫狗分类的CNN，但是出现了过拟合，消除过拟合的方法有dropout，augment等。
+
