@@ -30,3 +30,6 @@
 
 猫狗分类的CNN，但是出现了过拟合，消除过拟合的方法有dropout，augment等。
 
+8. RNN model to solve text classification.
+
+简单的RNN分类问题，数据处理提到了Mask，与Mask Rcnn是否有联系？
