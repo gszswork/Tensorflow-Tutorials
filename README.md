@@ -33,3 +33,9 @@
 8. RNN model to solve text classification.
 
 简单的RNN分类问题，数据处理提到了Mask，与Mask Rcnn是否有联系？Keras中的Masking就是一种忽略padding的技术
+
+9. RNN model to solbe text generation.
+
+运用RNN（GRU）创建了一个莎士比亚作品的自动生成系统，将完整的莎士比亚作品作为训练集合输入，然后可以根据一个字符串开头自动生成莎士比亚风格的文字，但内容并不
+一定可读。训练时以字符为单位，生成prediction时也是将字符单个输入模型，模型结合该字符与模型中rnn的隐藏context自动生成下一个字符。 
+
