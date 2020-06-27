@@ -56,7 +56,7 @@ print(text_as_int[:100])
 # 设定输入长度
 seq_length = 100
 
-examples_per_epoch = len(text) // seq_length 
+#examples_per_epoch = len(text) // seq_length 
 
 char_dataset = tf.data.Dataset.from_tensor_slices(text_as_int)
 
@@ -90,6 +90,8 @@ for input_example, target_example in  dataset.take(1):
 BATCH_SIZE = 64
 
 BUFFER_SIZE = 10000
+
+print(dataset)
 
 dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=True)
 
@@ -127,3 +129,80 @@ model = build_model(
     rnn_units=rnn_units,
     batch_size = BATCH_SIZE
 )
+
+# 损失函数
+
+def loss(labels, logits):
+  return tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
+
+# from_logits=True是因为模型返回逻辑回归
+model.compile(optimizer='adam', loss=loss)
+
+# 设置检查点
+checkpoint_dir = './training_checkpoints'
+checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt_{epoch}")
+checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_prefix,
+    save_weights_only=True
+)
+EPOCHS = 10
+history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
+
+tf.train.latest_checkpoint(checkpoint_dir)
+
+model = build_model(vocab_size, embedding_dim, rnn_units, batch_size=1)
+
+model.load_weights(tf.train.latest_checkpoint(checkpoint_dir))
+
+model.build(tf.TensorShape([1, None]))
+
+def generate_text(model, start_string):
+  # 根据一个预设的字符串来生成text
+
+  # 要生成的字符个数
+  num_generated = 1000
+  # 将起始字符转化为数字(向量化)
+  input_eval = [char2idx[s] for s in start_string]
+  input_eval = tf.expand_dims(input_eval, 0)
+  # 为什么要expand_dims
+
+  # 生成的结果
+  text_generated = []
+
+  # 低温度会生成更可预测的文本
+  # 较高温度会生成更令人惊讶的文本
+  # 可以通过试验以找到最好的设定
+  # 在这个demo里，temperature就是1
+
+  temperature = 1.0
+
+  model.reset_states
+  for i in range(num_generated):
+    #print(input_eval.shape)
+    predictions = model(input_eval)
+    # 删除批次的维度
+    predictions = tf.squeeze(predictions, 0)
+    # 为什么要squeeze？ A：这里BATCH_SIZE为1，所以prediction格式为(1,None,65),
+    #squeeze(_,0)可以删除维度1
+
+    # 用分类分布预测模型返回的字符
+    predictions = predictions / temperature
+    predicted_id = tf.random.categorical(predictions, num_samples=1)[-1,0].numpy()
+
+    # 把预测字符和前面的隐藏状态一起传递给模型作为下一个输入
+    input_eval = tf.expand_dims([predicted_id], 0)
+    #print(input_eval)
+    text_generated.append(idx2char[predicted_id])
+  
+  return (start_string + ''.join(text_generated))
+
+print(generate_text(model, start_string="Shuzhi"))
+
+"""一开始我感到困惑，generate_text函数中描述将预测出的字符和隐藏状态一起传递给模型作下一次输入。
+
+实际中传给model的只是一个新生成的字符，并且考虑到我们读取了训练好的模型参数，所以模型的参数也不会再改变。但是：
+
+model中keras.layers.GRU设置了一个RNN层，RNN内部包含context信息，所以在generate_text函数中，第一次迭代和第二次迭代时context是不同的，所以隐藏状态一直在变化。
+
+# 如何摆脱model.fit函数的限制自定义训练过程？
+"""
