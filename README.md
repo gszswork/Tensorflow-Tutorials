@@ -41,4 +41,4 @@
 
 10.  Attention
 
-预处理阶段
+带有attention的sequence to sequence model，完成了一个机器翻译任务。
